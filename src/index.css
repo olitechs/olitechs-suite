@@ -42,74 +42,114 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* CHANGE VALUES FOR THEME */
+/* OliTechs PMS + POS — design tokens.
+   Brand: black + yellow, slate-tinted neutrals. Yellow is the only brand
+   accent; blue is reserved for links, selection and information. */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* 6px control radius, 8px card radius on a 4px grid */
+  --radius: 0.5rem;
+
+  --background: #f6f7f9;
+  --foreground: #0f1720;
+  --card: #ffffff;
+  --card-foreground: #0f1720;
+  --popover: #ffffff;
+  --popover-foreground: #0f1720;
+  --primary: #ffc400;
+  --primary-foreground: #0b0f14;
+  --secondary: #f1f3f6;
+  --secondary-foreground: #0f1720;
+  --muted: #f1f3f6;
+  --muted-foreground: #5b6677;
+  --accent: #fff4c2;
+  --accent-foreground: #0b0f14;
+  --destructive: #dc2626;
+  --border: #e2e6eb;
+  --input: #c5ccd5;
+  --ring: #2563eb;
+  --chart-1: #ffc400;
+  --chart-2: #2563eb;
+  --chart-3: #059669;
+  --chart-4: #d97706;
+  --chart-5: #5b6677;
+
+  /* Sidebar = the brand block: charcoal in light mode */
+  --sidebar: #1f252d;
+  --sidebar-foreground: #f3f4f6;
+  --sidebar-primary: #ffc400;
+  --sidebar-primary-foreground: #0b0f14;
+  --sidebar-accent: #2a313b;
+  --sidebar-accent-foreground: #f3f4f6;
+  --sidebar-border: #2a313b;
+  --sidebar-ring: #2563eb;
+
+  /* Brand + status extensions (not part of the shadcn default set) */
+  --ink: #0b0f14;
+  --charcoal: #1f252d;
+  --action: #ffc400;
+  --action-hover: #e6b000;
+  --action-foreground: #0b0f14;
+  --action-soft: #fff4c2;
+  --surface-2: #f1f3f6;
+  --strong-border: #c5ccd5;
+  --info: #2563eb;
+  --success: #059669;
+  --success-text: #047857;
+  --warning: #d97706;
+  --warning-text: #b45309;
+  --danger: #dc2626;
+  --sidebar-muted: #9aa4b2;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #0e1116;
+  --foreground: #f3f4f6;
+  --card: #161b22;
+  --card-foreground: #f3f4f6;
+  --popover: #161b22;
+  --popover-foreground: #f3f4f6;
+  --primary: #ffc400;
+  --primary-foreground: #0b0f14;
+  --secondary: #1c222b;
+  --secondary-foreground: #f3f4f6;
+  --muted: #1c222b;
+  --muted-foreground: #9aa4b2;
+  --accent: #1c222b;
+  --accent-foreground: #f3f4f6;
+  --destructive: #f87171;
+  --border: #2a313b;
+  --input: #2a313b;
+  --ring: #60a5fa;
+  --chart-1: #ffc400;
+  --chart-2: #60a5fa;
+  --chart-3: #34d399;
+  --chart-4: #fbbf24;
+  --chart-5: #9aa4b2;
+
+  --sidebar: #161b22;
+  --sidebar-foreground: #f3f4f6;
+  --sidebar-primary: #ffc400;
+  --sidebar-primary-foreground: #0b0f14;
+  --sidebar-accent: #1c222b;
+  --sidebar-accent-foreground: #f3f4f6;
+  --sidebar-border: #2a313b;
+  --sidebar-ring: #60a5fa;
+
+  --ink: #0b0f14;
+  --charcoal: #1f252d;
+  --action: #ffc400;
+  --action-hover: #e6b000;
+  --action-foreground: #0b0f14;
+  --action-soft: #fff4c2;
+  --surface-2: #1c222b;
+  --strong-border: #2a313b;
+  --info: #60a5fa;
+  --success: #34d399;
+  --success-text: #34d399;
+  --warning: #fbbf24;
+  --warning-text: #fbbf24;
+  --danger: #f87171;
+  --sidebar-muted: #9aa4b2;
 }
 
 @layer base {
@@ -118,9 +158,83 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
   button:not([disabled]),
   [role="button"]:not([disabled]) {
     cursor: pointer;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+/* Plus Jakarta Sans for page titles and hero headlines */
+.font-display {
+  font-family: "Plus Jakarta Sans", "Inter", ui-sans-serif, sans-serif;
+}
+
+/* Money always uses tabular numerals so columns align */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Right-aligned money cells */
+.money {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* The one shallow elevation used by cards and raised pills */
+.shadow-shallow {
+  box-shadow: 0 1px 2px 0 rgb(11 15 20 / 0.05),
+    0 1px 3px 0 rgb(11 15 20 / 0.06);
+}
+
+/* Primary yellow action: hover #E6B000, ink text, never white.
+   Unlayered on purpose so it always wins over variant utilities. */
+.btn-action {
+  background-color: var(--action);
+  color: var(--action-foreground);
+}
+.btn-action:hover:not(:disabled) {
+  background-color: var(--action-hover);
+}
+.btn-action:disabled {
+  background-color: var(--strong-border);
+  color: var(--muted-foreground);
+  cursor: not-allowed;
+}
+
+/* Slim scrollbars that match the slate neutrals */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--strong-border) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--strong-border);
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }
