@@ -108,11 +108,7 @@ export interface TotalsInput {
  *   exactly to the taxable amount).
  * - exclusive property: tax is added on top of the net.
  */
-export function computeTotals({
-  lines,
-  discount,
-  paid,
-}: TotalsInput): Totals {
+export function computeTotals({ lines, discount, paid }: TotalsInput): Totals {
   const gross = round2(
     lines
       .filter((l) => l.status !== "cancelled")

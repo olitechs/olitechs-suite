@@ -86,6 +86,8 @@ export interface PosState {
   shift: ShiftState;
   sync: SyncState;
   conflict: PriceConflict | null;
+  /** Line ids whose price conflict the operator already decided. */
+  resolvedConflicts: string[];
 }
 
 /* ------------------------------------------------------------- seeding */
@@ -164,6 +166,7 @@ function initialState(): PosState {
       lastSyncedAt: Date.now(),
     },
     conflict: null,
+    resolvedConflicts: [],
   };
 }
 
@@ -172,7 +175,12 @@ function initialState(): PosState {
 export type PosAction =
   | { type: "add-line"; line: OrderLine; label: string }
   | { type: "inc-qty"; id: string; delta: number; label: string }
-  | { type: "update-line"; id: string; patch: Partial<OrderLine>; label: string }
+  | {
+      type: "update-line";
+      id: string;
+      patch: Partial<OrderLine>;
+      label: string;
+    }
   | { type: "remove-line"; id: string; label: string }
   | { type: "reset-ticket"; label: string }
   | { type: "set-order-type"; orderType: OrderType }
@@ -282,7 +290,9 @@ function ticketReducer(ticket: Ticket, action: PosAction): Ticket {
         status: ticket.status === "held" ? "open" : "held",
       };
     case "pre-bill":
-      return ticket.status === "settled" ? ticket : { ...ticket, status: "bill-printed" };
+      return ticket.status === "settled"
+        ? ticket
+        : { ...ticket, status: "bill-printed" };
     case "add-tender": {
       const tenders = [...ticket.tenders, action.tender];
       const paid = round2(tenders.reduce((s, t) => s + t.amount, 0));
@@ -363,7 +373,12 @@ export function posReducer(state: PosState, action: PosAction): PosState {
           note: `${l.note ? `${l.note} · ` : ""}price held at KES ${conflict.ticketPrice.toFixed(2)} — manager approval`,
         };
       });
-      return { ...state, conflict: null, ticket: { ...state.ticket, lines } };
+      return {
+        ...state,
+        conflict: null,
+        resolvedConflicts: [...state.resolvedConflicts, conflict.lineId],
+        ticket: { ...state.ticket, lines },
+      };
     }
     case "shift-open":
       return {
@@ -410,7 +425,12 @@ interface PosContextValue {
   table: TableRecord | undefined;
   addToOrder: (
     productId: string,
-    modifiers: { id: string; name: string; price: number; prep?: "less" | "normal" | "more" }[],
+    modifiers: {
+      id: string;
+      name: string;
+      price: number;
+      prep?: "less" | "normal" | "more";
+    }[],
     note?: string,
   ) => void;
   toggleOnline: () => void;
@@ -442,9 +462,13 @@ export function PosProvider({ children }: { children: ReactNode }) {
     [state.shift.float, state.ticket.tenders],
   );
 
-  /* Live ticket snapshot for the sync pass without re-arming its timer. */
+  /* Live snapshots for the sync pass without re-arming its timer. */
   const ticketRef = useRef(state.ticket);
-  ticketRef.current = state.ticket;
+  const resolvedRef = useRef(state.resolvedConflicts);
+  useEffect(() => {
+    ticketRef.current = state.ticket;
+    resolvedRef.current = state.resolvedConflicts;
+  });
 
   /* One sync pass on reconnect. No polling, no "refresh every 2s": the queue
      is flushed exactly once when the connection returns. */
@@ -457,7 +481,9 @@ export function PosProvider({ children }: { children: ReactNode }) {
       const update = PENDING_PRICE_UPDATE;
       const conflictLine = ticketRef.current.lines.find(
         (l) =>
-          l.productId === update.productId && l.unitPrice === update.from,
+          l.productId === update.productId &&
+          l.unitPrice === update.from &&
+          !resolvedRef.current.includes(l.id),
       );
       dispatch({
         type: "sync-done",
@@ -476,13 +502,15 @@ export function PosProvider({ children }: { children: ReactNode }) {
           description: "Resolve it in the conflict card above the ticket.",
         });
       } else {
-        toast.success(`${queued.length} change${queued.length > 1 ? "s" : ""} synced`, {
-          description: "Back online — queue flushed.",
-        });
+        toast.success(
+          `${queued.length} change${queued.length > 1 ? "s" : ""} synced`,
+          {
+            description: "Back online — queue flushed.",
+          },
+        );
       }
     }, 900);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.sync.online, state.sync.status, state.sync.queued]);
 
   const addToOrder = useCallback<PosContextValue["addToOrder"]>(
@@ -526,7 +554,8 @@ export function PosProvider({ children }: { children: ReactNode }) {
     dispatch,
     totals,
     cashDrawer,
-    pendingCount: state.ticket.lines.filter((l) => l.status === "pending").length,
+    pendingCount: state.ticket.lines.filter((l) => l.status === "pending")
+      .length,
     table,
     addToOrder,
     toggleOnline,
@@ -544,6 +573,8 @@ export function usePos(): PosContextValue {
 /** Exported for tests/tools: the sum of sent line gross, KES. */
 export function sentGross(lines: OrderLine[]): number {
   return round2(
-    lines.filter((l) => l.status === "sent").reduce((s, l) => s + lineGross(l), 0),
+    lines
+      .filter((l) => l.status === "sent")
+      .reduce((s, l) => s + lineGross(l), 0),
   );
 }

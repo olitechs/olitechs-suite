@@ -1,5 +1,5 @@
 import '@vly-ai/integrations';
-import { Toaster } from "@/components/ui/sonner";
+import { AppToaster } from "@/components/AppToaster";
 import { RequireAuth } from "@/components/RequireAuth";
 import { VlyToolbar } from "../vly-toolbar-readonly.tsx";
 import { ConvexAuthProvider } from "@convex-dev/auth/react";
@@ -13,6 +13,7 @@ import "./index.css";
 const Landing = lazy(() => import("./pages/Landing.tsx"));
 const AuthPage = lazy(() => import("./pages/Auth.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
+const Pos = lazy(() => import("./pages/Pos.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
@@ -122,7 +123,18 @@ createRoot(document.getElementById("root")!).render(
               <Route path="/" element={<Landing />} />
               <Route
                 path="/auth"
-                element={<AuthPage redirectAfterAuth="/dashboard" />}
+                element={<AuthPage redirectAfterAuth="/pos" />}
+              />
+              <Route
+                path="/pos"
+                element={
+                  <RequireAuth
+                    title="Sign in to the POS"
+                    description="The order screen is only available to signed-in front desk and restaurant staff."
+                  >
+                    <Pos />
+                  </RequireAuth>
+                }
               />
               <Route
                 path="/dashboard"
@@ -136,7 +148,7 @@ createRoot(document.getElementById("root")!).render(
             </Routes>
           </Suspense>
         </BrowserRouter>
-        <Toaster />
+        <AppToaster />
       </ConvexAuthProvider>
     </RootErrorBoundary>
   </StrictMode>,
