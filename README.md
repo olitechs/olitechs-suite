@@ -1,293 +1,281 @@
-## Overview
+<div align="center">
 
-This project uses the following tech stack:
-- Vite
-- Typescript
-- React Router v7 (all imports from `react-router` instead of `react-router-dom`)
-- React 19 (for frontend components)
-- Tailwind v4 (for styling)
-- Shadcn UI (for UI components library)
-- Lucide Icons (for icons)
-- Convex (for backend & database)
-- Convex Auth (for authentication)
-- Framer Motion (for animations)
-- Three js (for 3d models)
+# OliTechs PMS + POS
 
-All relevant files live in the 'src' directory.
+### One platform for the front desk, the dining room and the stockroom.
 
-Use bun for the package manager.
+**The all-in-one property management and point-of-sale system built for hotels, lodges and beach resorts in Africa.**
+Rooms, reservations, folios, kitchen tickets, stock and the nightly close, all in one place, all talking to each other.
 
-## Setup
+[![Build](https://github.com/olitechs/olitechpmspos/actions/workflows/validate-build.yml/badge.svg)](https://github.com/olitechs/olitechpmspos/actions/workflows/validate-build.yml)
+![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![Tailwind](https://img.shields.io/badge/Tailwind-3-38BDF8?logo=tailwindcss&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-Postgres%20%2B%20RLS-3FCF8E?logo=supabase&logoColor=white)
+![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-000000?logo=vercel&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
-This project is set up already and running on a cloud environment, as well as a convex development in the sandbox.
+**[Live demo](https://olitechpmspos.vercel.app)** · **[Architecture](Architecture.md)** · **[Product requirements](PRD.md)** · **[Roadmap](FEATURE_ROADMAP.md)**
 
-## Environment Variables
+</div>
 
-The project is set up with project specific CONVEX_DEPLOYMENT and VITE_CONVEX_URL environment variables on the client side.
+---
 
-The convex server has a separate set of environment variables that are accessible by the convex backend.
+## Why this exists
 
-Currently, these variables include auth-specific keys: JWKS, JWT_PRIVATE_KEY, and SITE_URL.
+A guest orders grilled snapper on the terrace, signs it to Room 7, and checks out two days later. In most properties that one sentence touches three systems, two notebooks and a calculator, and someone loses an hour reconciling it at night.
 
+OliTechs is built so that sentence is **one transaction**:
 
-# Using Authentication (Important!)
-
-You must follow these conventions when using authentication.
-
-## Auth is already set up.
-
-All convex authentication functions are already set up. The auth currently uses email OTP and anonymous users, but can support more.
-
-The email OTP configuration is defined in `src/convex/auth/emailOtp.ts`. DO NOT MODIFY THIS FILE.
-
-Also, DO NOT MODIFY THESE AUTH FILES: `src/convex/auth.config.ts` and `src/convex/auth.ts`.
-
-## Using Convex Auth on the backend
-
-On the `src/convex/users.ts` file, you can use the `getCurrentUser` function to get the current user's data.
-
-## Using Convex Auth on the frontend
-
-The `/auth` page is already set up to use auth. Navigate to `/auth` for all log in / sign up sequences.
-
-You MUST use this hook to get user data. Never do this yourself without the hook:
-```typescript
-import { useAuth } from "@/hooks/use-auth";
-
-const { isLoading, isAuthenticated, user, signIn, signOut } = useAuth();
+```mermaid
+sequenceDiagram
+    participant W as Waiter (POS)
+    participant K as Kitchen / Bar
+    participant C as Cashier
+    participant F as Guest Folio
+    participant R as Reception
+    W->>K: Send order (kitchen ticket prints at the right station)
+    K-->>W: Ready
+    C->>F: Settle to room (charge posts to the folio)
+    R->>F: Checkout: balance, payments, receipt
+    Note over W,R: One audit trail. One set of totals. No re-typing.
 ```
 
-## Protected Routes
+---
 
-The starter `/dashboard` route is protected with `RequireAuth`. Extend that page
-for the product's authenticated experience, and reuse `RequireAuth` when adding
-another protected route — do NOT hand-roll a redirect to `/auth`, since landing
-on a bare sign-in form with no explanation of what was blocked is confusing.
+<!--
+SCREENSHOTS: capture these three screens and save them in docs/screenshots/, then uncomment this block.
 
-`RequireAuth` states the block on the page the visitor asked for and sends them
-to `/auth?returnTo=<current route>` when they choose to sign in, so they come
-back to it. Pass `title` and `description` to say what the page is:
+| Dashboard | Room Planner | POS |
+| --- | --- | --- |
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Room Planner](docs/screenshots/room-planner.png) | ![POS](docs/screenshots/pos.png) |
+-->
 
-```tsx
-<Route
-  path="/dashboard"
-  element={
-    <RequireAuth
-      title="Sign in to view your dashboard"
-      description="Your projects and settings live here."
-    >
-      <Dashboard />
-    </RequireAuth>
-  }
-/>
+## What's in the box
+
+### Front Office (PMS)
+| | |
+|---|---|
+| **Room Planner** | Visual calendar of rooms against dates, drag to move or extend a stay, availability checked in the database so double bookings are rejected at the source |
+| **Reservations** | Create, edit, cancel; multi-room group bookings; walk-in check-in; rate plans and room types |
+| **Guest folios** | Room charges, restaurant charges, payments, balance, and a checkout that checks the balance first |
+| **Housekeeping** | Clean, dirty, inspected and out-of-order states that follow check-out automatically; maintenance tickets; laundry orders |
+| **Night audit** | Pre-check, run, history, and a managed business date per property |
+| **Guests and loyalty** | Guest profiles, stay history, loyalty points |
+| **Channels** | Booking-engine and channel-manager tables and sync events |
+
+### Restaurant, Bar and Counter (POS)
+| | |
+|---|---|
+| **Tables and orders** | Table sessions, order taking by category, modifiers, discounts, move and merge tables |
+| **Kitchen display and tickets** | Kitchen order tickets, refire, item removal recorded as a void (never a silent delete) |
+| **Payments** | Configurable payment types per property, room charge to folio, receipts |
+| **Cashier shifts** | Open and close shifts, cash drawer, reconciliation against actual transactions |
+| **Printing** | Local Print Agent v2, printer groups, routing by category to the right station |
+
+### Stores and Inventory
+Items, categories, suppliers, purchase orders and goods received, stock transfers between locations, adjustments with reasons, wastage, counts with reconciliation, production runs, recipes that deduct ingredients on sale, low-stock alerts and valuation.
+
+### Platform, Roles and Licensing
+- **Platform admin** (the OliTechs owner layer): approve properties, assign packages, enforce module access and usage limits.
+- **Hotel admin**: staff, roles and property settings.
+- **Operational roles**: receptionist, front office manager, waiter, cashier, POS staff, F&B manager, store manager, housekeeping supervisor, each seeing only what they should.
+- **Row Level Security** in Postgres decides who reads and writes what, per property.
+
+---
+
+## How it fits together
+
+```mermaid
+flowchart LR
+    subgraph Browser["Browser / Tablet (React 18 + Vite)"]
+        UI["Pages and components"]
+        ST["Local state + TanStack Query"]
+        SV["Service layer\npmsService / posService / inventoryService"]
+        UI --> ST --> SV
+    end
+    SV -->|"RPCs + RLS"| DB[("Supabase\nPostgres + Auth + Realtime")]
+    DB --> FN["Edge functions\n(print proxy)"]
+    PA["Local Print Agent v2\n(on the property PC)"] <-->|"print jobs"| DB
+    PA --> PR["Thermal printers\nLAN · Windows spooler · USB · Bluetooth · Serial"]
 ```
 
-Pass `redirectImmediately` for a route where bouncing straight to `/auth` really
-is better.
+The rule that keeps it honest: **components never call Supabase directly.** They go through hooks and the service layer, and money and stock changes run as database functions inside transactions.
 
-## Auth Page
+---
 
-The auth page is defined in `src/pages/Auth.tsx`. Send sign-in and sign-up actions
-to `/auth`.
+## Quick start
 
-## Authorization
+**Requirements:** Node.js 18 or newer, a free [Supabase](https://supabase.com) project.
 
-You can perform authorization checks on the frontend and backend.
+```bash
+# 1. Clone
+git clone https://github.com/olitechs/olitechpmspos.git
+cd olitechpmspos
 
-On the frontend, you can use the `useAuth` hook to get the current user's data and authentication state.
+# 2. Install
+npm install
 
-You should also be protecting queries, mutations, and actions at the base level, checking for authorization securely.
+# 3. Configure
+cp .env.example .env.local
+#    then set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+#    (Supabase dashboard -> Project Settings -> API)
 
-## Adding a redirect after auth
+# 4. Apply the database
+#    Run the SQL files in supabase/migrations/ in timestamp order.
+#    See supabase/migrations/README.md for the platform-owner setup.
 
-The `/auth` route in `src/main.tsx` redirects to `/dashboard` by default. If the
-product's main authenticated route is different, update `redirectAfterAuth` to
-that route. A validated same-origin `returnTo` query parameter takes priority so
-users can resume the protected page they originally requested. Never leave an
-authenticated product redirecting back to the public landing page.
-
-## Complete authenticated products
-
-When the requested product implies accounts, a workspace, a dashboard, or other
-signed-in functionality, the task is not complete with only a landing page and
-auth form. Build the main authenticated experience, protect its route, and verify
-that signing in reaches it.
-
-# Frontend Conventions
-
-You will be using the Vite frontend with React 19, Tailwind v4, and Shadcn UI.
-
-Generally, pages should be in the `src/pages` folder, and components should be in the `src/components` folder.
-
-Shadcn primitives are located in the `src/components/ui` folder and should be used by default.
-
-## Page routing
-
-Your page component should go under the `src/pages` folder.
-
-When adding a page, update the react router configuration in `src/main.tsx` to include the new route you just added.
-
-## Shad CN conventions
-
-Follow these conventions when using Shad CN components, which you should use by default.
-- Remember to use "cursor-pointer" to make the element clickable
-- For title text, use the "tracking-tight font-bold" class to make the text more readable
-- Always make apps MOBILE RESPONSIVE. This is important
-- AVOID NESTED CARDS. Try and not to nest cards, borders, components, etc. Nested cards add clutter and make the app look messy.
-- AVOID SHADOWS. Avoid adding any shadows to components. stick with a thin border without the shadow.
-- Avoid skeletons; instead, use the loader2 component to show a spinning loading state when loading data.
-
-
-## Landing Pages
-
-You must always create good-looking designer-level styles to your application. 
-- Make it well animated and fit a certain "theme", ie neo brutalist, retro, neumorphism, glass morphism, etc
-
-Use known images and emojis from online.
-
-If the user is logged in already, show the get started button to say "Dashboard" or "Profile" instead to take them there.
-
-## Responsiveness and formatting
-
-Make sure pages are wrapped in a container to prevent the width stretching out on wide screens. Always make sure they are centered aligned and not off-center.
-
-Always make sure that your designs are mobile responsive. Verify the formatting to ensure it has correct max and min widths as well as mobile responsiveness.
-
-- Always create sidebars for protected dashboard pages and navigate between pages
-- Always create navbars for landing pages
-- On these bars, the created logo should be clickable and redirect to the index page
-
-## Animating with Framer Motion
-
-You must add animations to components using Framer Motion. It is already installed and configured in the project.
-
-To use it, import the `motion` component from `framer-motion` and use it to wrap the component you want to animate.
-
-
-### Other Items to animate
-- Fade in and Fade Out
-- Slide in and Slide Out animations
-- Rendering animations
-- Button clicks and UI elements
-
-Animate for all components, including on landing page and app pages.
-
-## Three JS Graphics
-
-Your app comes with three js by default. You can use it to create 3D graphics for landing pages, games, etc.
-
-
-## Colors
-
-You can override colors in: `src/index.css`
-
-This uses the oklch color format for tailwind v4.
-
-Always use these color variable names.
-
-Make sure all ui components are set up to be mobile responsive and compatible with both light and dark mode.
-
-Set theme using `dark` or `light` variables at the parent className.
-
-## Styling and Theming
-
-When changing the theme, always change the underlying theme of the shad cn components app-wide under `src/components/ui` and the colors in the index.css file.
-
-Avoid hardcoding in colors unless necessary for a use case, and properly implement themes through the underlying shad cn ui components.
-
-When styling, ensure buttons and clickable items have pointer-click on them (don't by default).
-
-Always follow a set theme style and ensure it is tuned to the user's liking.
-
-## Toasts
-
-You should always use toasts to display results to the user, such as confirmations, results, errors, etc.
-
-Use the shad cn Sonner component as the toaster. For example:
-
-```
-import { toast } from "sonner"
-
-import { Button } from "@/components/ui/button"
-export function SonnerDemo() {
-  return (
-    <Button
-      variant="outline"
-      onClick={() =>
-        toast("Event has been created", {
-          description: "Sunday, December 03, 2023 at 9:00 AM",
-          action: {
-            label: "Undo",
-            onClick: () => console.log("Undo"),
-          },
-        })
-      }
-    >
-      Show Toast
-    </Button>
-  )
-}
+# 5. Run
+npm run dev
 ```
 
-Remember to import { toast } from "sonner". Usage: `toast("Event has been created.")`
+The anon key is safe in frontend code by design. Row Level Security is what protects the data. **Never put the service-role key in the browser.**
 
-## Dialogs
+### Where to go once it is running
 
-Always ensure your larger dialogs have a scroll in its content to ensure that its content fits the screen size. Make sure that the content is not cut off from the screen.
+| Surface | Path | For |
+|---|---|---|
+| Back office | `/backoffice` | Dashboard, items, reports, inventory, employees, settings |
+| Front office | `/frontoffice` | Room planner, reservations, folios, housekeeping, night audit |
+| Stores | `/stores` | Stock and purchasing |
+| POS | `/pos` | Restaurant, bar and cashier |
+| Platform admin | `/admin` | Properties, packages, audit log, roles, printers |
 
-Ideally, instead of using a new page, use a Dialog instead. 
+New properties register through the sign-up flow and wait for platform approval before they are active.
 
-# Using the Convex backend
+---
 
-You will be implementing the convex backend. Follow your knowledge of convex and the documentation to implement the backend.
+## Print Agent
 
-## The Convex Schema
+Thermal receipts and kitchen tickets are printed by a small agent that runs on the property PC.
 
-You must correctly follow the convex schema implementation.
-
-The schema is defined in `src/convex/schema.ts`.
-
-Do not include the `_id` and `_creationTime` fields in your queries (it is included by default for each table).
-Do not index `_creationTime` as it is indexed for you. Never have duplicate indexes.
-
-
-## Convex Actions: Using CRUD operations
-
-When running anything that involves external connections, you must use a convex action with "use node" at the top of the file.
-
-You cannot have queries or mutations in the same file as a "use node" action file. Thus, you must use pre-built queries and mutations in other files.
-
-You can also use the pre-installed internal crud functions for the database:
-
-```ts
-// in convex/users.ts
-import { crud } from "convex-helpers/server/crud";
-import schema from "./schema.ts";
-
-export const { create, read, update, destroy } = crud(schema, "users");
-
-// in some file, in an action:
-const user = await ctx.runQuery(internal.users.read, { id: userId });
-
-await ctx.runMutation(internal.users.update, {
-  id: userId,
-  patch: {
-    status: "inactive",
-  },
-});
+```bash
+npm run print-agent
+# listens on http://127.0.0.1:8631   health: /health
 ```
 
+Supported connections: LAN/IP (ESC/POS on port 9100), Windows installed printers (including USB and paired Bluetooth), WebUSB, Web Bluetooth and Web Serial. Windows install scripts are in `tools/print-agent/`. Full guide: [`tools/print-agent/README.md`](tools/print-agent/README.md).
 
-## Common Convex Mistakes To Avoid
+Agent settings (`PRINT_AGENT_ID`, `WORKSPACE_ID`, `SUPABASE_SERVICE_ROLE_KEY`) belong on the property PC only.
 
-When using convex, make sure:
-- Document IDs are referenced as `_id` field, not `id`.
-- Document ID types are referenced as `Id<"TableName">`, not `string`.
-- Document object types are referenced as `Doc<"TableName">`.
-- Keep schemaValidation to false in the schema file.
-- You must correctly type your code so that it passes the type checker.
-- You must handle null / undefined cases of your convex queries for both frontend and backend, or else it will throw an error that your data could be null or undefined.
-- Always use the `@/folder` path, with `@/convex/folder/file.ts` syntax for importing convex files.
-- This includes importing generated files like `@/convex/_generated/server`, `@/convex/_generated/api`
-- Remember to import functions like useQuery, useMutation, useAction, etc. from `convex/react`
-- NEVER have return type validators.
+---
+
+## Project structure
+
+```text
+olitechpmspos/
+├── src/
+│   ├── pages/            Route-level screens (POS, auth, admin, public)
+│   ├── components/
+│   │   ├── modules/      Dashboard, Reservations, Folio, Housekeeping, Reports...
+│   │   ├── pms/          Room planner and room management
+│   │   ├── pos/          Floor plan, order taking, POS container
+│   │   ├── store/        Stores and inventory screens
+│   │   ├── settings/     Back-office settings
+│   │   ├── shell/        Sidebar, top bar, tabs
+│   │   └── ui/           Shared primitives (button, input, dialog...)
+│   ├── services/         Supabase access: pms, pos, inventory, auth, printers
+│   ├── data/             PmsStore and AppStore (being migrated), palettes
+│   ├── lib/              Auth context, query client
+│   └── hooks/
+├── supabase/
+│   ├── migrations/       Ordered, additive SQL (schema, RLS, RPCs)
+│   └── functions/        Edge functions (print proxy)
+├── tools/print-agent/    Local Windows print agent
+├── design-system/        Design tokens and page specs
+├── tests/                Automated tests
+└── docs/                 Production QA notes
+```
+
+> `v6/` is a historical copy kept for reference. It is not the running application.
+
+---
+
+## Scripts
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Start the Vite dev server |
+| `npm run build` | Production build |
+| `npm run preview` | Serve the production build locally |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | Type-check against `jsconfig.json` |
+| `npm run print-agent` | Start the local print agent |
+| `npm run print-agent:install` | Install the agent as a Windows service |
+
+---
+
+## Quality gates
+
+Three GitHub Actions workflows run on the repository: **Validate OliTechs PMS POS** (build), **OliTechs Production QA**, and **Deploy Supabase Edge Functions**. The production QA checklist lives in [`docs/PHASE_10_PRODUCTION_QA.md`](docs/PHASE_10_PRODUCTION_QA.md).
+
+---
+
+## Engineering ground rules
+
+These keep a money-handling system trustworthy. Read [`Rules.md`](Rules.md) before contributing.
+
+- Postgres is the source of truth. React state is a view.
+- No Supabase calls from presentational components.
+- Migrations are additive and idempotent. Never edit or renumber an applied migration.
+- Money is never trusted from the client. Totals, refunds and stock movements are computed and recorded by database functions.
+- Voids and refunds leave an audit trail. Nothing already sent to the kitchen disappears silently.
+- Permissions are enforced in the backend, not just by hiding buttons.
+- New forms use `react-hook-form` and `zod`.
+
+---
+
+## Documentation
+
+| Document | Purpose |
+|---|---|
+| [`PRD.md`](PRD.md) | What we are building and for whom |
+| [`Architecture.md`](Architecture.md) | Target architecture and migration plan |
+| [`Rules.md`](Rules.md) | Engineering rules |
+| [`Phases.md`](Phases.md) | Delivery phases |
+| [`Design.md`](Design.md) | Design system |
+| [`Memory.md`](Memory.md) | Decisions and project memory |
+| [`AGENTS.md`](AGENTS.md) | Guide for AI coding agents working in this repo |
+| [`FEATURE_ROADMAP.md`](FEATURE_ROADMAP.md) | Feature roadmap |
+
+---
+
+## Roadmap
+
+**In progress**
+- A single design system and application shell (one navigation, one palette, shared components)
+- Moving PMS and POS state from the legacy in-memory stores to TanStack Query and Zustand
+- Moving authentication fully onto Supabase Auth
+
+**Planned**
+- Floor-plan editor: multiple dining areas, drag-to-arrange tables, saved layouts
+- Richer order entry: course control, half portions, weight items, split by item or seat
+- Barcode scanning at the till and at goods-in, shelf labels
+- Departments with tax rates, second selling price, date-activated price lists
+- Receipt and invoice history with reprint and approved reversals
+- Sales analysis by item, department, operator, shift and hour; gross-to-net reporting
+- Petty-cash and expense book linked to the cashier float
+- Kenyan tax invoicing (KRA / ETR) integration
+- Full offline operation with a safe sync queue
+- End-to-end browser tests across reservation-to-checkout and order-to-settlement
+
+---
+
+## Contributing
+
+1. Read [`AGENTS.md`](AGENTS.md), [`Rules.md`](Rules.md) and [`Phases.md`](Phases.md).
+2. Branch from `main`: `feature/<phase>-<short-name>`.
+3. Keep changes inside one phase. Run `npm run build`, `npm run lint` and `npm run typecheck` before opening a pull request.
+4. In the pull request, list the changed files, the workflows you tested and anything you could not verify.
+
+---
+
+## License
+
+MIT.
+
+<div align="center">
+
+**Built by [OliTechs](https://github.com/olitechs) for the people who run the property, not just the software that tracks it.**
+
+</div>
